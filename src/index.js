@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // End view elements
   const resultContainer = document.querySelector("#result");
-
+  
 
   /************  SET VISIBILITY OF VIEWS  ************/
 
@@ -46,20 +46,39 @@ document.addEventListener("DOMContentLoaded", () => {
   /************  SHOW INITIAL CONTENT  ************/
 
   // Convert the time remaining in seconds to minutes and seconds, and pad the numbers with zeros if needed
-  const minutes = Math.floor(quiz.timeRemaining / 60).toString().padStart(2, "0");
+  const minutes = Math.floor(quiz.timeRemaining / 60 ).toString().padStart(2, "0");
   const seconds = (quiz.timeRemaining % 60).toString().padStart(2, "0");
 
   // Display the time remaining in the time remaining container
   const timeRemainingContainer = document.getElementById("timeRemaining");
   timeRemainingContainer.innerText = `${minutes}:${seconds}`;
 
+  
+
   // Show first question
-  showQuestion();
+  showQuestion(); 
 
 
   /************  TIMER  ************/
 
-  let timer;
+   let timer = 5
+   const updateTime = () => {
+    timeRemainingContainer.innerHTML =  `Remaining Time: ${timer}:${seconds}`;
+    }
+    
+    const timerInterval = setInterval(() => {
+      timer--;
+      //document.getElementById('timeRemaining').innerText = timeRemainingContainer.innerText
+      //console.log(timer)
+    updateTime();
+
+    if(timer <= 0){
+      clearInterval(timerInterval);
+      //showResults();
+
+    }
+  }, 1000)
+   
 
 
   /************  EVENT LISTENERS  ************/
@@ -91,29 +110,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const question = quiz.getQuestion();
     // Shuffle the choices of the current question by calling the method 'shuffleChoices()' on the question object
     question.shuffleChoices();
-    
-    
 
     // YOUR CODE HERE:
-    //
     // 1. Show the question
     // Update the inner text of the question container element and show the question text
 
-    
+    questionContainer.innerText = question.text
+
     // 2. Update the green progress bar
     // Update the green progress bar (div#progressBar) width so that it shows the percentage of questions answered
     
-    progressBar.style.width = `65%`; // This value is hardcoded as a placeholder
-
-
+    progressBar.style.width = `${quiz.currentQuestionIndex * 10}%`; // This value is hardcoded as a placeholder
 
     // 3. Update the question count text 
     // Update the question count (div#questionCount) show the current question out of total questions
     
-    questionCount.innerText = `Question 1 of 10`; //  This value is hardcoded as a placeholder
+    questionCount.innerText = `Question ${quiz.currentQuestionIndex + 1} of 10`; //  This value is hardcoded as a placeholder
 
-
-    
     // 4. Create and display new radio input element with a label for each choice.
     // Loop through the current question `choices`.
       // For each choice create a new radio input with a label, and append it to the choice container.
@@ -128,38 +141,63 @@ document.addEventListener("DOMContentLoaded", () => {
       // Hint 3: You can use the `element.appendChild()` method to append an element to the choices container.
       // Hint 4: You can use the `element.innerText` property to set the inner text of an element.
 
+
+
+      question.choices.forEach((choice, i) => {
+        const input = document.createElement("input")
+        const label = document.createElement("label")
+        label.innerText = choice
+        input.setAttribute("type", "radio")
+        input.setAttribute("name", "choice")
+        input.setAttribute("value", choice)
+        choiceContainer.appendChild(input).style.display = 'flex'
+        choiceContainer.appendChild(label).style.display = 'flex'
+      }) 
   }
-
-
   
   function nextButtonHandler () {
-    let selectedAnswer; // A variable to store the selected answer value
-
-
+    let selectedAnswer = null; // A variable to store the selected answer value
 
     // YOUR CODE HERE:
     //
     // 1. Get all the choice elements. You can use the `document.querySelectorAll()` method.
-
+    const choiceElements = document.querySelectorAll('.choice');
 
     // 2. Loop through all the choice elements and check which one is selected
       // Hint: Radio input elements have a property `.checked` (e.g., `element.checked`).
       //  When a radio input gets selected the `.checked` property will be set to true.
       //  You can use check which choice was selected by checking if the `.checked` property is true.
-
+      choiceElements.forEach(choice => {
+        if (choice.checked) {
+            selectedAnswer = choice;
+        }
+    });
       
     // 3. If an answer is selected (`selectedAnswer`), check if it is correct and move to the next question
       // Check if selected answer is correct by calling the quiz method `checkAnswer()` with the selected answer.
       // Move to the next question by calling the quiz method `moveToNextQuestion()`.
       // Show the next question by calling the function `showQuestion()`.
-  }  
+    function checkAnswer(selectedAnswer){
+      
+    }
 
 
 
+
+    //   if (selectedAnswer) {
+    //     if (selectedAnswer.value === correctAnswers) {
+    //       quiz.move
+    //   }
+    //   else {
+    //     alert('No answer selected. Please select an answer.');
+    //   }
+    //   console.log(correctAnswers)
+    // }  
 
   function showResults() {
 
     // YOUR CODE HERE:
+    clearInterval(countdown);
     //
     // 1. Hide the quiz view (div#quizView)
     quizView.style.display = "none";
@@ -168,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
     endView.style.display = "flex";
     
     // 3. Update the result container (div#result) inner text to show the number of correct answers out of total questions
-    resultContainer.innerText = `You scored 1 out of 1 correct answers!`; // This value is hardcoded as a placeholder
+    resultContainer.innerText = `You scored ${correctAnswers} out of ${totalQuestions} correct answers`; // This value is hardcoded as a placeholder
   }
   
-});
+}});
